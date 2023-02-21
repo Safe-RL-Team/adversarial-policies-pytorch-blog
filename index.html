@@ -2,8 +2,28 @@
 <meta charset="utf-8">
 <script src="https://distill.pub/template.v1.js"></script>
 
+<style>
+  .figure .caption {
+    font-size: 16px;
+    line-height: 18px;
+    margin: 0;
+  }
+  .figure .img {
+    width: 100%;
+  }
+  .columns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .columns .column-2 {
+    width: 50%;
+    padding: 10px;
+  }
+</style>
+
 <script type="text/front-matter">
-  title: "Article Title"
+  title: "Adversarial Agents in MARL"
   description: "Description of the post"
   authors:
   - Jarek Liesen
@@ -12,11 +32,42 @@
 </script>
 
 <dt-article>
-  <h1>Hello World</h1>
-  <h2>A description of the article</h2>
+  <h1>Adversarial Agents in multi-agent reinforcement learning</h1>
+  <!-- <h2>A description of the article</h2> -->
   <dt-byline></dt-byline>
-  <p>This is the first paragraph of the article.</p>
-  <p>We can also cite <dt-cite key="gleave2020adversarial"></dt-cite> external publications.</p>
+  <!-- Introduction -->
+  <p>
+    Adversarial attacks are a well-known phenomenon in machine learning that poses a threat to the security of many practical applications.
+    To attack a neural network, one adds a small pertubation to its input, which leads to a misclassification.
+    They have been studied extensively in the context of computer vision, and more recently in reinforcement learning (RL).
+  </p>
+  <div class="l-page side">
+    <div class="columns">
+      <div class="column-2 figure">
+        <img class="img" src="static/hopper.gif">
+        <p class="caption">Hopper agent trained with PPO under normal circumstances<br><b>Reward</b>: 3104</p>
+      </div>
+      <div class="column-2 figure">
+        <img class="img" src="static/hopper_pa.gif">
+        <p class="caption">The same Hopper agent under adversarial attack from <dt-cite key="sun2021who"></dt-cite><br><b>Reward</b>: 171</p>
+      </div>
+    </div>
+  </div>
+  <p>
+    In an RL setting, perturbed observations can fool an agent with a neural network policy into taking actions that lead to poor performance
+    <dt-cite key="huang2017adversarial"></dt-cite><dt-cite key="chen2019adversarial"></dt-cite>.
+    For example, look at the hopper on the right, where the observations have been unnoticeably perturbed, leading to a detrimental drop in the cumulative reward.
+    There is a multitude of methods to attack RL agents, including classical methods such as FGSM <dt-cite key="goodfellow2014explaining"></dt-cite>,
+    and methods that exploit RL specific properties <dt-cite key="kos2017delving"></dt-cite><dt-cite key="sun2021who"></dt-cite>.
+    The majority of these methods assume that the attacker is able to freely modify the agent's observations, which might not be possible in many cases.
+    However, an interesting opportunity arises in multi-agent RL (MARL) settings, where agents observe each other:
+  </p>
+  <p><i>An attacker might take the form of an agent in MARL, whose actions directly influence the victim's observations.</i></p>
+  <p>
+    This is the key idea in Gleave et al's paper "Adversarial Policies: Attacking Deep Reinforcement Learning" <dt-cite key="gleave2020adversarial"></dt-cite>,
+    who train adversarial agents that attack victims in several two-player games.
+    In this post, we will take a closer look at those adversarial agents, analyze how they work, and discuss ways to defend against them.
+  </p>
 </dt-article>
 
 <dt-appendix>
@@ -29,5 +80,40 @@
     journal={ICLR 2020},
     year={2020},
     url={https://openreview.net/forum?id=HJgEMpVFwB}
+  }
+  @article{chen2019adversarial,
+    title={Adversarial attack and defense in reinforcement learning-from AI security view},
+    author={Chen, Tong and Liu, Jiqiang and Xiang, Yingxiao and Niu, Wenjia and Tong, Endong and Han, Zhen},
+    journal={Cybersecurity},
+    year={2019},
+    url={https://doi.org/10.1186/s42400-019-0027-x}
+  }
+  @article{goodfellow2014explaining,
+    title={Explaining and harnessing adversarial examples},
+    author={Goodfellow, Ian and Shlens, Jonathon and Szegedy, Christian},
+    journal={CoRR},
+    year={2014},
+    url={https://arxiv.org/abs/1412.6572}
+  }
+  @article{kos2017delving,
+    title={Delving into adversarial attacks on deep policies},
+    author={Kos, Jernej and Song, Dawn},
+    journal={ICLR 2017 workshop submission},
+    year={2017},
+    url={https://openreview.net/forum?id=BJcib5mFe}
+  }
+  @article{sun2021who,
+    title={Who is the strongest enemy? Towards Optimal and Efficient Attacks in Deep RL},
+    author={Sun, Yanchao and Zheng, Ruijie and Liang, Yongyuan and Huang, Furong},
+    journal={ICLR 2022 Poster},
+    year={2022},
+    url={https://openreview.net/forum?id=JM2kFbJvvI}
+  }
+  @article{huang2017adversarial,
+    title={Adversarial Attacks on Neural Network Policies},
+    author={Huang, Sandy and Papernot, Nicolas and Goodfellow, Ian and Duan, Yan and Abbeel, Pieter},
+    journal={ICLR 2017 workshop submission},
+    year={2017},
+    url={https://openreview.net/forum?id=ryvlRyBKl}
   }
 </script>
