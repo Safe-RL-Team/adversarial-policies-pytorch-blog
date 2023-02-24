@@ -8,7 +8,13 @@
     line-height: 18px;
     margin: 0;
   }
-  .figure .img {
+  .figure .caption-centered {
+    font-size: 16px;
+    line-height: 18px;
+    margin: 0;
+    text-align: center;
+  }
+  .figure .figure-content {
     width: 100%;
   }
   .columns {
@@ -18,6 +24,10 @@
   }
   .columns .column-2 {
     width: 50%;
+    padding: 10px;
+  }
+  .columns .column-4 {
+    width: 25%;
     padding: 10px;
   }
 </style>
@@ -44,11 +54,11 @@
   <div class="l-page side">
     <div class="columns">
       <div class="column-2 figure">
-        <img class="img" src="static/hopper.gif">
+        <img class="figure-content" src="static/hopper.gif">
         <p class="caption">Hopper agent trained with PPO under normal circumstances<br><b>Reward</b>: 3104</p>
       </div>
       <div class="column-2 figure">
-        <img class="img" src="static/hopper_pa.gif">
+        <img class="figure-content" src="static/hopper_pa.gif">
         <p class="caption">The same Hopper agent under adversarial attack from <dt-cite key="sun2021who"></dt-cite><br><b>Reward</b>: 171</p>
       </div>
     </div>
@@ -68,6 +78,65 @@
     who train adversarial agents that attack victims in several two-player games.
     In this post, we will take a closer look at those adversarial agents, analyze how they work, and discuss ways to defend against them.
   </p>
+  <h2>Setting things up</h2>
+  <p>
+    We will train adversarial agents on four different mujoco environments, each of which implements a two-player, zero-sum game.
+    Originally, these environments have been introduced in Bansal et al's paper "Emergent	Complexity via Multi-Agent Competition" <dt-cite key="bansal2018emergent"></dt-cite>,
+    who trained a several agents competing in each environment.
+    For our experiments, we will focus on the following four:
+  </p>
+  <div class="l-page-outset columns">
+    <!-- All videos are from the zoo agents with tag 1 -->
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/you-shall-not-pass-zoo-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>You Shall Not Pass</b> (humans) <br>
+        Asymmetric, MLP policy
+      </p>
+    </div>
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/kick-and-defend-zoo-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Kick and Defend</b> (humans)<br>
+        Asymmetric, LSTM policy
+      </p>
+    </div>
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/sumo-humans-zoo-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Sumo</b> (humans)<br>
+        Symmetric, LSTM policy
+      </p>
+    </div>
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/sumo-ants-zoo-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Sumo</b> (ants)<br>
+        Symmetric, LSTM policy
+      </p>
+    </div>
+  </div>
+  <p>
+    The score you see above has the form <i>#wins - #losses - #draws</i>, from the perspective of one of the agents, which we will call the attacker.
+    Right now, the attacker acts according to its pretrained policy, but later we will train an adversarial policy to act in its place.
+    <ul>
+      <li>In <b>You Shall Not Pass</b> the attacker is the red agent, who wins if the blue agent falls to the ground before it reaches the red line, and loses otherwise.</li>
+      <li>
+        In <b>Kick and Defend</b> the attacker is the blue agent, who wins if the red agent fails to score, but the ball remains within the vicinity of the goal.
+        The blue agent loses if a goal is scored, otherwise it is a draw.
+      </li>
+      <li>In <b>Sumo</b> the attacker is the blue agent. An agent wins if it manages to stand while its opponent falls to the ground our outside the arena.</li>
+    </ul>
+  </p>
+
 </dt-article>
 
 <dt-appendix>
@@ -115,5 +184,12 @@
     journal={ICLR 2017 workshop submission},
     year={2017},
     url={https://openreview.net/forum?id=ryvlRyBKl}
+  }
+  @article{bansal2018emergent,
+    title={Emergent Complexity via Multi-Agent Competition},
+    author={Bansal, Trapit and Pachocki, Jakub and Sutskever, Ilya and Mordatch, Igor},
+    journal={ICLR 2018 conference submission},
+    year={2018},
+    url={https://openreview.net/forum?id=Sy0GnUxCb}
   }
 </script>
