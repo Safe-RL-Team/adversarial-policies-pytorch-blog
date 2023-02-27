@@ -30,6 +30,12 @@
     width: 25%;
     padding: 10px;
   }
+  .mujoco-red {
+    color: #804040;
+  }
+  .mujoco-blue {
+    color: #4080a4;
+  }
 </style>
 
 <script type="text/front-matter">
@@ -133,8 +139,128 @@
         In <b>Kick and Defend</b> the attacker is the blue agent, who wins if the red agent fails to score, but the ball remains within the vicinity of the goal.
         The blue agent loses if a goal is scored, otherwise it is a draw.
       </li>
-      <li>In <b>Sumo</b> the attacker is the blue agent. An agent wins if it manages to stand while its opponent falls to the ground our outside the arena.</li>
+      <li>In <b>Sumo</b> the attacker is the blue agent. If the agents had contact, and one of the falls to the ground or outside the arena, that agent loses. A draw is declared on timeout or premature stumbling.</li>
     </ul>
+  </p>
+
+  <h2>Training an adversarial agent</h2>
+  <p>
+    While training the attacker, we keep the victim's policy fixed.
+    This is not an unrealistic assumption, as in practice neural networks are often frozen before deployment, in order to avoid performance degradation due to retraining.
+    Additionally, this simplifies our training setup, because our victim can be "absorbed" into the environment, by incorporating the victim's policy into the transition function.
+    In pseudocode, this could look something like this:
+  </p>
+  <dt-code block language="python">
+    class AttackerEnv(gym.Env):
+        """ An environment that wraps a multi-agent environment and inserts 
+            the victim's actions at index 1. """
+
+        ...
+        
+        def step(self, action):
+            # Get the action the victim would take in the current state
+            victim_action = self.victim_policy(self._get_obs())
+
+            # Give the attacker's action as well as the victim's action
+            # to the wrapped multi-agent environment
+            obs, reward, done, info = self.env.step([action, victim_action])
+
+            # Return the observation and reward of the attacker
+            return obs[0], reward[0], done, info
+  </dt-code>
+  <p>
+    Note that the environment now takes in only an action from the attacker, and returns only the attacker's observation and reward, meaning...
+  </p>
+  <p><i>The attacker can be trained in a single-agent environment.</i></p>
+  <p>
+    Our goal for the attacker is simply to win as much as possible.
+    Therefore, we don't use the reward function of the environment, but reward the attacker when it wins, and penalize it otherwise.
+    We do this by giving a sparse reward at the end of the episode, either 1000 or -1000 depending on the game result.
+  </p>
+  <p>
+    With the environment and reward in place, we can use any standard RL algorithm to train our attacker.
+    In our case, we used the PPO implementation of stable baselines 3 <dt-cite key="stable-baselines3"></dt-cite> 
+    with the hyperparameters provided in <dt-cite key="gleave2020adversarial"></dt-cite>.
+  </p>
+
+  <h2>Training results</h2>
+  <div class="l-page-outset columns">
+    <!-- All videos are from the zoo agents with tag 1 -->
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/you-shall-not-pass-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>You Shall Not Pass</b> (humans) <br>
+        MLP policy, attacker in <span class="mujoco-red"><b>● Red</b></span>
+      </p>
+    </div>
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/kick-and-defend-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Kick and Defend</b> (humans)<br>
+        LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
+      </p>
+    </div>
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/sumo-humans-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Sumo</b> (humans)<br>
+        LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
+      </p>
+    </div>
+    <div class="column-4 figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/sumo-ants-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Sumo</b> (ants)<br>
+        LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
+      </p>
+    </div>
+  </div>
+  <p>
+    The videos above show the adversaries at work.
+    As you might notice, the success of our attack depends on the environment.
+  </p>
+  <div class="l-body side">
+    <div class="figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/you-shall-not-pass-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>You Shall Not Pass</b> (humans) <br>
+        MLP policy, attacker in <span class="mujoco-red"><b>● Red</b></span>
+      </p>
+    </div>
+  </div>
+  <p>
+    In <b>You shall not pass</b>, the attacker is able to win almost every time (X% of the games).
+    It does this not by obstructing the victim, or by any other interpretable means, but by falling to the ground and moving seemingly at random.
+    This shows that the attacker produces adversarial observations, because the victim cannot cross the line despite any obstruction.
+    This is not the case when placing the victim against a random policy, or one that does not exert forces on its joints at all (the zero policy).
+  </p>
+
+  <div class="l-body side">
+    <div class="figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/kick-and-defend-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Kick and Defend</b> (humans)<br>
+        LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
+      </p>
+    </div>
+  </div>
+  <p>
+    In <b>Kick and Defend</b>, the attacker also achieves very good results against the victim (winning X% of the games).
+    While the behavior of the attacker seems similar to the one in You Shall Not Pass, the effect it has on the victim is different.
+    Instead of falling over, the victim seems to forget to kick the ball, resulting in a loss after the time limit is reached.
+    Again, pairing up the victim against the random policy or the zero policy, it performs as expected.
   </p>
 
 </dt-article>
@@ -191,5 +317,19 @@
     journal={ICLR 2018 conference submission},
     year={2018},
     url={https://openreview.net/forum?id=Sy0GnUxCb}
+  }
+  @article{schulman2017proximal,
+    title={Proximal Policy Optimization Algorithms},
+    author={Schulman, John and Wolski, Filip and Dhariwal, Prafulla and Radford, Alec and Klimov, Oleg},
+    journal={ICLR 2017},
+    year={2017},
+    url={https://arxiv.org/abs/1707.06347}
+  }
+  @article{stable-baselines3,
+    title   = {Stable-Baselines3: Reliable Reinforcement Learning Implementations},
+    author  = {Antonin Raffin and Ashley Hill and Adam Gleave and Anssi Kanervisto and Maximilian Ernestus and Noah Dormann},
+    journal = {Journal of Machine Learning Research},
+    year    = {2021},
+    url     = {http://jmlr.org/papers/v22/20-1364.html}
   }
 </script>
