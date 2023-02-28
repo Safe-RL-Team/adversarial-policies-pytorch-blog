@@ -88,7 +88,8 @@
   <p>
     We will train adversarial agents on four different mujoco environments, each of which implements a two-player, zero-sum game.
     Originally, these environments have been introduced in Bansal et al's paper "Emergent	Complexity via Multi-Agent Competition" <dt-cite key="bansal2018emergent"></dt-cite>,
-    who trained a several agents competing in each environment.
+    who trained several agents competing in each environment.
+    In the visualizations in the rest of the article, we will see the behavior of the first pretrained agent.
     For our experiments, we will focus on the following four:
   </p>
   <div class="l-page-outset columns">
@@ -98,8 +99,9 @@
         <source src="static/you-shall-not-pass-zoo-concat.mp4" type="video/mp4">
       </video>
       <p class="caption-centered">
-        <b>You Shall Not Pass</b> (humans) <br>
-        Asymmetric, MLP policy
+        <b>You Shall Not Pass</b> (humans)<br>
+        Asymmetric, MLP policy<br>
+        1 pretrained agent
       </p>
     </div>
     <div class="column-4 figure">
@@ -108,7 +110,8 @@
       </video>
       <p class="caption-centered">
         <b>Kick and Defend</b> (humans)<br>
-        Asymmetric, LSTM policy
+        Asymmetric, LSTM policy<br>
+        3 pretrained agents
       </p>
     </div>
     <div class="column-4 figure">
@@ -117,7 +120,8 @@
       </video>
       <p class="caption-centered">
         <b>Sumo</b> (humans)<br>
-        Symmetric, LSTM policy
+        Symmetric, LSTM polic<br>
+        3 pretrained agents
       </p>
     </div>
     <div class="column-4 figure">
@@ -126,7 +130,8 @@
       </video>
       <p class="caption-centered">
         <b>Sumo</b> (ants)<br>
-        Symmetric, LSTM policy
+        Symmetric, LSTM policy<br>
+        4 pretrained agents
       </p>
     </div>
   </div>
@@ -263,6 +268,70 @@
     Again, pairing up the victim against the random policy or the zero policy, it performs as expected.
   </p>
 
+  <div class="l-body side">
+    <div class="figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/sumo-humans-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Sumo</b> (humans)<br>
+        LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
+      </p>
+    </div>
+  </div>
+  <p>
+    In <b>Sumo</b>, our attacks work fairly well, but the results differ a lot between the victims (X% of the games).
+    Because the attacker cannot win when falling over, it learns to kneel in a stable position, while moving its arms.
+    The constraint of staying upright limits the impact the attacker can have on the victim, which could explain the high variance in the attackers performance.
+  </p>
+
+  <div class="l-body side">
+    <div class="figure">
+      <video class="figure-content" autoplay loop controls>
+        <source src="static/sumo-ants-adv-concat.mp4" type="video/mp4">
+      </video>
+      <p class="caption-centered">
+        <b>Sumo</b> (ants)<br>
+        LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
+      </p>
+    </div>
+  </div>
+  <p>
+    In <b>Sumo (ants)</b> our attack did not work against any of the victims.
+    This is in line with the research on adversarial attacks, which shows that they work better in higher-dimensional input spaces <dt-cite key="goodfellow2014explaining"></dt-cite>.
+    In comparison, the state of an ant agent is 15-dimensional, which that of a human is 24-dimensional.
+    Still, we can observe that the attacker seems to stall the victim, while almost not moving itself.
+    This is a vastly differnt behavior than that of the pretrained agents.
+  </p>
+  <p>
+    All in all, we can gather two key takeaways:
+  </p>
+  <ul>
+    <li>
+      <i>It is easy to create adversarial agents by simply training to minimize the success of a victim.</i>
+    </li>
+    <li>
+      <i>
+        The success of the attack depends on how much control the attacker has over the victim's observation space
+        (or in other words, the effective dimensionality of the manipulable subspace).
+      </i>
+    </li>
+  </ul>
+  <p>
+    While the results we presented here are purely qualitative and visual, we provide a complete table of winrates in the <a href="#appendix">appendix</a>.
+    Still, you might be unsatisfied, because while we have seen that the attacks work, we have not seen <i>how</i> they work.
+  </p>
+
+  <h2>
+    Why do the adversarial attacks work?
+  </h2>
+  <p>
+    In order to understand the mode of action of our attacks, we will analyze the activations in the victim's policy network.
+    To do so, we will use two techniques, TSNE <dt-cite key="vandermaaten2008visualizing"></dt-cite> for a qualitative visualizations and a Gaussian mixture model for a statistical analysis.
+  </p>
+
+  <h2 id="appendix">Appendix</h2>
+
 </dt-article>
 
 <dt-appendix>
@@ -331,5 +400,12 @@
     journal = {Journal of Machine Learning Research},
     year    = {2021},
     url     = {http://jmlr.org/papers/v22/20-1364.html}
+  }
+  @article{vandermaaten2008visualizing,
+    title   = {Visualizing Data using t-SNE},
+    author  = {van der Maaten, Laurens and Hinton, Geoffrey},
+    journal = {Journal of Machine Learning Research},
+    year    = {2008},
+    url     = {http://jmlr.org/papers/v9/vandermaaten08a.html}
   }
 </script>
