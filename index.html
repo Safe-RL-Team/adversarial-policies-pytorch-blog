@@ -36,11 +36,11 @@
   .mujoco-blue {
     color: #4080a4;
   }
-  .center {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
+  table {
+    table-layout: fixed;
+  }
+  table td {
+    text-align: center;
   }
 </style>
 
@@ -71,7 +71,7 @@
       </div>
       <div class="column-2 figure">
         <img class="figure-content" src="static/hopper_pa.gif">
-        <p class="caption">The same Hopper agent under adversarial attack from <dt-cite key="sun2021who"></dt-cite><br><b>Reward</b>: 171</p>
+        <p class="caption">The same Hopper agent under adversarial attack from <dt-cite key="sun2022who"></dt-cite><br><b>Reward</b>: 171</p>
       </div>
     </div>
   </div>
@@ -250,7 +250,7 @@
     </div>
   </div>
   <p>
-    In <b>You shall not pass</b>, the attacker is able to win almost every time (X% of the games).
+    In <b>You shall not pass</b>, the attacker is able to consistently score wins (it wins 71% of the games).
     It does this not by obstructing the victim, or by any other interpretable means, but by falling to the ground and moving seemingly at random.
     This shows that the attacker produces adversarial observations, because the victim cannot cross the line despite any obstruction.
     This is not the case when placing the victim against a random policy, or one that does not exert forces on its joints at all (the zero policy).
@@ -268,7 +268,7 @@
     </div>
   </div>
   <p>
-    In <b>Kick and Defend</b>, the attacker also achieves very good results against the victim (winning X% of the games).
+    In <b>Kick and Defend</b>, the attacker achieves even better results against the victim (winning 81% of the games).
     While the behavior of the attacker seems similar to the one in You Shall Not Pass, the effect it has on the victim is different.
     Instead of falling over, the victim seems to forget to kick the ball, resulting in a loss after the time limit is reached.
     Again, pairing up the victim against the random policy or the zero policy, it performs as expected.
@@ -286,7 +286,8 @@
     </div>
   </div>
   <p>
-    In <b>Sumo</b>, our attacks work fairly well, but the results differ a lot between the victims (X% of the games).
+    In <b>Sumo</b>, our attacks work fairly well, but the results differ a lot between the victims.
+    While our first attacker can score a 70% winrate, the second and third only win 12% and 36%, respectively.
     Because the attacker cannot win when falling over, it learns to kneel in a stable position, while moving its arms.
     The constraint of staying upright limits the impact the attacker can have on the victim, which could explain the high variance in the attackers performance.
   </p>
@@ -305,7 +306,7 @@
   <p>
     In <b>Sumo (ants)</b> our attack did not work against any of the victims.
     This is in line with the research on adversarial attacks, which shows that they work better in higher-dimensional input spaces <dt-cite key="goodfellow2014explaining"></dt-cite>.
-    In comparison, the state of an ant agent is 15-dimensional, which that of a human is 24-dimensional.
+    In comparison, the state of an ant agent is 15-dimensional, while that of a human is 24-dimensional.
     Still, we can observe that the attacker seems to stall the victim, while almost not moving itself.
     This is a vastly differnt behavior than that of the pretrained agents.
   </p>
@@ -332,8 +333,8 @@
   <h2>
     How do the adversarial attacks work?
   </h2>
-  <p>
-    <!--
+  <!--<p>
+    
       In order to understand the mode of action of our attacks, we will analyze the activations in the victim's policy network.
       To do so, we will use two techniques, TSNE <dt-cite key="vandermaaten2008visualizing"></dt-cite> for a qualitative visualizations and a Gaussian mixture model
       <dt-cite key="pedregosa2011gaussian"></dt-cite> for a statistical analysis. 
@@ -348,45 +349,195 @@
     * TSNE is a dimensionality reduction algorithm that tries to preserve the local structure of the data
     -->
 
-    <p>
-      We suspect that the easiest way to win against a well-trained agent in a short time is to create observations that the defender has not encountered during training.
-      The attack aims to create inputs for the defender in an observation space that the defender has not well generalized before.
-      To validate if this assumption is correct we are required to open up the black box of the defender and analyze its inner workings.
-      
-      One intuitive approach to achieve this is to examine the activations of semantically similar observations, which are expected to be close to each other in the network's representation.
-      By analyzing the activations of the defender during the game, we can gain insight into how it processes different observations.
-      
-      To visualize the activations of the defender in a 2D space, we used the t-Distributed Stochastic Neighbor Embedding (T-SNE)<dt-cite key="vandermaaten2008visualizing"></dt-cite> algorithm, which is a dimensionality reduction technique that preserves the local structure of the data.
-      This allows us to gain a better understanding of how the defender perceives the game environment and how it responds to different stimuli.
-    </p>
-   
-    <figure id="tsne" class="l-page side">
-      <img class="figure-content" src="static/tsne.png" style="width: 100%;">
-      <figcaption class="caption-centered">
-        <b>TSNE</b> visualization of the activations of the defender's policy network during the game.
-      </figcaption>
-    </figure>
+  <p>
+    We suspect that the easiest way to win against a well-trained agent in a short time is to create observations that the defender has not encountered during training.
+    The attack aims to create inputs for the defender in an observation space that the defender has not well generalized before.
+    To validate if this assumption is correct we are required to open up the black box of the defender and analyze its inner workings.
+    
+    One intuitive approach to achieve this is to examine the activations of semantically similar observations, which are expected to be close to each other in the network's representation.
+    By analyzing the activations of the defender during the game, we can gain insight into how it processes different observations.
+    
+    To visualize the activations of the defender in a 2D space, we used the t-Distributed Stochastic Neighbor Embedding (T-SNE)<dt-cite key="vandermaaten2008visualizing"></dt-cite> algorithm, which is a dimensionality reduction technique that preserves the local structure of the data.
+    This allows us to gain a better understanding of how the defender perceives the game environment and how it responds to different stimuli.
+  </p>
+  
+  <figure id="tsne" class="l-page side">
+    <img class="figure-content" src="static/tsne.png" style="width: 100%;">
+    <figcaption class="caption-centered">
+      <b>TSNE</b> visualization of the activations of the defender's policy network during the game.
+    </figcaption>
+  </figure>
 
-    <p>
-      The T-SNE visualization shows that the attacker is able to create observations that stimulate the defender differently than the Zoo models. 
-      As this is a strictly qualitative analysis, we cannot draw any numeric conclusions from this visualization.
+  <p>
+    The T-SNE visualization shows that the attacker is able to create observations that stimulate the defender differently than the Zoo models. 
+    As this is a strictly qualitative analysis, we cannot draw any numeric conclusions from this visualization.
 
-      Therefore we also performed a statistical analysis of the defender's activations.
-      This analysis is done by modeling the defender's activations when playing against the one of the Zoo models as a Gaussian mixture model<dt-cite key="pedregosa2011gaussian"></dt-cite>.
-      
-      When comparing the activations induced by the other Zoo models we can observer that there is a weak positive log likelihood, that these activations where produced by the same model.
-      However in most of the cases it was strongly unlikely, that the activations induced by the adversarial agent were produced by the same model.
-   </p>
+    Therefore we also performed a statistical analysis of the defender's activations.
+    This analysis is done by modeling the defender's activations when playing against the one of the Zoo models as a Gaussian mixture model<dt-cite key="pedregosa2011gaussian"></dt-cite>.
+    
+    When comparing the activations induced by the other Zoo models we can observer that there is a weak positive log likelihood, that these activations where produced by the same model.
+    However in most of the cases it was strongly unlikely, that the activations induced by the adversarial agent were produced by the same model.
+  </p>
+
+  <h2>
+    How can we defend against adversarial agents?
+  </h2>
+  <p>
+    As we have seen, the enabler for adversarial attacks is the manipulation of the victim's observation space.
+    Therefore, how can we defend against such attacks?
+    A super simple solution is to mask out the part of the observations that contains information about the attacker.
+    For masking, we fix the values after initializing the agents within the environment so that they stay natural, unlike setting them to 0.
+  </p>
+  <p>
+    This technique works extremely well for "You Shall Not Pass," where the win rate against the adversary skyrockets to 99.2%.
+    However, it does come at a cost: the performance against the pretrained opponent drops from 50.9% to 19.3%.
+    Additionally, this method of masking does not work for other environments whose observations contain positions relative to the victim.
+    When the victim moves, it still observes the same relative position, which we believe is detrimental to its performance.
+    Besides this very simple method, there are many other ways to defend against adversarial agents.
+  </p>
+  <p>
+    One idea is <b>finetuning</b> a policy against adversarial attacks, such as in <dt-cite key="kos2017delving"></dt-cite>, 
+    where the authors increase a policies robustness by finetuning against observations attacked with FGSM.
+    Similarly, in <td-cite key="gleave2020adversarial"></td-cite>, the victim agents are finetuned against the attackers,
+    which increases robustness while the attack can still be reapplied.
+  </p>
+  <p>
+    A related approach is <b>co-training</b> with adversarial agents.
+    Here, the victim is trained at the same time as an adversary which can manipulate the victim's observations, building robustness from the ground up.
+    In <dt-cite key="pinto2017robust"></dt-cite>, the co-trained adversarial agent applies forces to the victim in order to destabelize it.
+    In <dt-cite key="zhang2021robust"></dt-cite>, the authors co-train an optimal adversary represented by a neural network that outputs an observation.
+    This might be infeasible in large observation spaces, and is improved upon in <dt-cite key="sun2022who"></dt-cite>, who split this network into an actor and director,
+    which craft a state perturbation and propose a policy perturbation direction, respectively.
+    Another approach is to co-train with adversarial agents, which is done in <dt-cite key="czempin2022reducing"></dt-cite>, where the authors train a victim with a diverse population of different opponents.
+  </p>
+  <p>
+    Lastly, there are several <b>regularization</b> methods, such as <dt-cite key="oikarinen2021robust"></dt-cite> and <dt-cite key="zhang2020robust"></dt-cite>.
+  </p>
+
   <h2 id="Discussion">Discussion</h2>
   <p>
     In the high dimensional environments (sumo humans, kick and defend, you shall not pass) our experiments showed that adversarial policies can prove as strong opponents in only a fraction of the training time.
     Despite the success on these environment, in the low dimensional environment (sumo ants) the adversarial agent could not prove successfull very often.
     This makes sense, since the combinatorical explosion of possible states in the higher dimensional environments makes it more likely, that there are observation states which were not visited in the training process and not generalized yet.
-
-    
   </p>
 
+
   <h2 id="appendix">Appendix</h2>
+  <h3>Tournament</h3>
+  <h4>You Shall Not Pass</h4>
+  <table>
+    <tr>
+      <th></th>
+      <th>Adv1</th>
+      <th>ZooO1</th>
+      <th>Random</th>
+      <th>Zero</th>
+    </tr>
+    <!--{"zero": {"win": 987, "loss": 13, "draw": 0}, "random": {"win": 980, "loss": 20, "draw": 0}, "zoo1": {"win": 509, "loss": 491, "draw": 0}, "adv1": {"win": 384, "loss": 616, "draw": 0}}-->
+    <tr>
+      <th>ZooV1</th>
+      <td>38.4</td>
+      <td>50.9</td>
+      <td>98.0</td>
+      <td>98.7</td>
+    </tr>
+    <!-- {"zero": {"win": 983, "loss": 17, "draw": 0}, "random": {"win": 982, "loss": 18, "draw": 0}, "zoo1": {"win": 193, "loss": 807, "draw": 0}, "adv1": {"win": 992, "loss": 8, "draw": 0}} -->
+    <tr>
+      <th>ZooM1</th>
+      <td>99.2</td>
+      <td>19.3</td>
+      <td>98.2</td>
+      <td>98.3</td>
+    </tr>
+  </table>
+  <h4>Kick and Defend</h4>
+  <table>
+    <tr>
+      <th></th>
+      <th>Adv1</th>
+      <th>Adv2</th>
+      <th>Adv3</th>
+      <th>ZooO1</th>
+      <th>ZooO2</th>
+      <th>ZooO3</th>
+      <th>Random</th>
+      <th>Zero</th>
+    </tr>
+    <!-- {"zero": {"win": 597, "loss": 314, "draw": 89}, "random": {"win": 667, "loss": 295, "draw": 38}, "zoo1": {"win": 550, "loss": 443, "draw": 7}, "zoo2": {"win": 579, "loss": 418, "draw": 3}, "zoo3": {"win": 573, "loss": 422, "draw": 5}, "adv1": {"win": 400, "loss": 592, "draw": 8}, "adv2": {"win": 386, "loss": 607, "draw": 7}, "adv3": {"win": 414, "loss": 572, "draw": 14}} -->
+    <tr>
+      <th>ZooV1</th>
+      <td>40.0</td>
+      <td>38.6</td>
+      <td>41.4</td>
+      <td>55.0</td>
+      <td>57.9</td>
+      <td>57.3</td>
+      <td>66.7</td>
+      <td>59.7</td>
+    </tr>
+    <!-- {"zero": {"win": 412, "loss": 484, "draw": 104}, "random": {"win": 439, "loss": 509, "draw": 52}, "zoo1": {"win": 339, "loss": 659, "draw": 2}, "zoo2": {"win": 358, "loss": 636, "draw": 6}, "zoo3": {"win": 344, "loss": 653, "draw": 3}, "adv1": {"win": 297, "loss": 692, "draw": 11}, "adv2": {"win": 319, "loss": 661, "draw": 20}, "adv3": {"win": 309, "loss": 679, "draw": 12}} -->
+    <tr>
+      <th>ZooV2</th>
+      <td>29.7</td>
+      <td>31.9</td>
+      <td>30.9</td>
+      <td>33.9</td>
+      <td>35.8</td>
+      <td>34.4</td>
+      <td>43.9</td>
+      <td>41.2</td>
+    </tr>
+    <!-- {"zero": {"win": 638, "loss": 287, "draw": 75}, "random": {"win": 650, "loss": 282, "draw": 68}, "zoo1": {"win": 396, "loss": 585, "draw": 19}, "zoo2": {"win": 368, "loss": 619, "draw": 13}, "zoo3": {"win": 367, "loss": 616, "draw": 17}, "adv1": {"win": 168, "loss": 824, "draw": 8}, "adv2": {"win": 175, "loss": 816, "draw": 9}, "adv3": {"win": 206, "loss": 780, "draw": 14}} -->
+    <tr>
+      <th>ZooV3</th>
+      <td>16.8</td>
+      <td>17.5</td>
+      <td>16.7</td>
+      <td>36.8</td>
+      <td>36.7</td>
+      <td>36.6</td>
+      <td>65.0</td>
+      <td>63.8</td>
+    </tr>
+    <tr><td colspan="9"></td></tr>
+    <!-- {"zero": {"win": 0, "loss": 905, "draw": 95}, "random": {"win": 0, "loss": 951, "draw": 49}, "zoo1": {"win": 35, "loss": 929, "draw": 36}, "zoo2": {"win": 8, "loss": 979, "draw": 13}, "zoo3": {"win": 0, "loss": 930, "draw": 70}, "adv1": {"win": 1, "loss": 983, "draw": 16}, "adv2": {"win": 33, "loss": 958, "draw": 9}, "adv3": {"win": 2, "loss": 992, "draw": 6}} -->
+    <tr>
+      <th>ZooM1</th>
+      <td>0.1</td>
+      <td>3.3</td>
+      <td>0.2</td>
+      <td>3.5</td>
+      <td>0.8</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <!-- {"zero": {"win": 0, "loss": 904, "draw": 96}, "random": {"win": 16, "loss": 928, "draw": 56}, "zoo1": {"win": 31, "loss": 951, "draw": 18}, "zoo2": {"win": 0, "loss": 909, "draw": 91}, "zoo3": {"win": 14, "loss": 980, "draw": 6}, "adv1": {"win": 8, "loss": 982, "draw": 10}, "adv2": {"win": 0, "loss": 978, "draw": 22}, "adv3": {"win": 2, "loss": 988, "draw": 10}} -->
+    <tr>
+      <th>ZooM2</th>
+      <td>0.8</td>
+      <td>0.0</td>
+      <td>0.2</td>
+      <td>3.1</td>
+      <td>0.0</td>
+      <td>1.4</td>
+      <td>1.6</td>
+      <td>0.0</td>
+    </tr>
+    <!-- {"zero": {"win": 3, "loss": 917, "draw": 80}, "random": {"win": 12, "loss": 934, "draw": 54}, "zoo1": {"win": 0, "loss": 877, "draw": 123}, "zoo2": {"win": 1, "loss": 944, "draw": 55}, "zoo3": {"win": 0, "loss": 928, "draw": 72}, "adv1": {"win": 1, "loss": 989, "draw": 10}, "adv2": {"win": 28, "loss": 964, "draw": 8}, "adv3": {"win": 0, "loss": 986, "draw": 14}} -->
+    <tr>
+      <th>ZooM3</th>
+      <td>0.1</td>
+      <td>2.8</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.1</td>
+      <td>0.0</td>
+      <td>1.2</td>
+      <td>0.3</td>
+    </tr>
+  </table>
+
 </dt-article>
 
 <dt-appendix>
@@ -421,7 +572,7 @@
     year={2017},
     url={https://openreview.net/forum?id=BJcib5mFe}
   }
-  @article{sun2021who,
+  @article{sun2022who,
     title={Who is the strongest enemy? Towards Optimal and Efficient Attacks in Deep RL},
     author={Sun, Yanchao and Zheng, Ruijie and Liang, Yongyuan and Huang, Furong},
     journal={ICLR 2022 Poster},
@@ -474,5 +625,40 @@
     pages={2825--2830},
     year={2011},
     url={https://scikit-learn.org/stable/modules/mixture.html}
+  }
+  @article{zhang2021robust,
+    title={Robust Reinforcement Learning on State Observations with Learned Optimal Adversary},
+    author={Zhang, Huan and Chen, Hongge, and Boning, Duane and Hsieh, Cho-Jui},
+    journal={ICLR 2021},
+    year={2021},
+    url={https://arxiv.org/abs/2101.08452},
+  }
+  @article{pinto2017robust,
+    title={Robust Adversarial Reinforcement Learning},
+    author={Pinto, Lerrel and Davidson, James and Sukthankar, Rahul and Gupta, Abhinav},
+    journal={Proceedings of the 34th International Conference on Machine Learning - Volume 70},
+    year={2017},
+    url={https://arxiv.org/abs/1703.02702},
+  }
+  @article{czempin2022reducing,
+    title={Reducing Exploitability with Population Based Training},
+    author={Czempin, Pavel and Gleave, Adam},
+    journal={ICLR 2022},
+    year={2022},
+    url={https://arxiv.org/abs/2208.05083},
+  }
+  @article{oikarinen2021robust,
+    title={Robust Deep Reinforcement Learning through Adversarial Loss},
+    author={Oikarinen, Tuomas and Zhang, Wang and Megretski, Alexandre and Danial, Luca and Weng, Tsui-Wei},
+    journal={Neurips 2021 Poster},
+    year={2021},
+    url={https://openreview.net/forum?id=eaAM_bdW0Q},
+  }
+  @article{zhang2020robust,
+    title={Robust Deep Reinforcement Learning against Adversarial Perturbations on State Observations},
+    author={Zhang, Huan and Chen, Hongge, and Xiao, Chaowei and Liu, Mingyan and Boning, Duane and Hsieh, Cho-Jui},
+    journal={NIPS 2020},
+    year={2020},
+    url={https://arxiv.org/abs/2003.08938},
   }
 </script>
