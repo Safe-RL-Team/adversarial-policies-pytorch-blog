@@ -36,6 +36,12 @@
   .mujoco-blue {
     color: #4080a4;
   }
+  .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+  }
 </style>
 
 <script type="text/front-matter">
@@ -322,17 +328,65 @@
     Still, you might be unsatisfied, because while we have seen that the attacks work, we have not seen <i>how</i> they work.
   </p>
 
+
   <h2>
-    Why do the adversarial attacks work?
+    How do the adversarial attacks work?
   </h2>
   <p>
-    In order to understand the mode of action of our attacks, we will analyze the activations in the victim's policy network.
-    To do so, we will use two techniques, TSNE <dt-cite key="vandermaaten2008visualizing"></dt-cite> for a qualitative visualizations and a Gaussian mixture model
-    <dt-cite key="pedregosa2011gaussian"></dt-cite> for a statistical analysis.
+    <!--
+      In order to understand the mode of action of our attacks, we will analyze the activations in the victim's policy network.
+      To do so, we will use two techniques, TSNE <dt-cite key="vandermaaten2008visualizing"></dt-cite> for a qualitative visualizations and a Gaussian mixture model
+      <dt-cite key="pedregosa2011gaussian"></dt-cite> for a statistical analysis. 
+    # * If we think about the implications of our training one assumptions could be that
+    * Trying to understand how the adv attack work
+    * the easiest way to win against a well trained agent in little time, is to create observerations that the defender has never seen before and that are very different from the observations that the defender has seen during training
+    * Therefore the attack is looking to create input for defender on in an observation space that the defender has not well generalized before
+    * One intuation that we have is, that the activations of semantically similar observations are close to each other in the networks representation and 
+    * Therefore we need to open up the black box of the defender and take a look into the inner workings of the defender
+    * one possibilitiy to do this, is by looking at the activations of the defender during the games
+    * we can do this by using the TSNE algorithm to visualize the activations of the defender in a 2D space
+    * TSNE is a dimensionality reduction algorithm that tries to preserve the local structure of the data
+    -->
+
+    <p>
+      We suspect that the easiest way to win against a well-trained agent in a short time is to create observations that the defender has not encountered during training.
+      The attack aims to create inputs for the defender in an observation space that the defender has not well generalized before.
+      To validate if this assumption is correct we are required to open up the black box of the defender and analyze its inner workings.
+      
+      One intuitive approach to achieve this is to examine the activations of semantically similar observations, which are expected to be close to each other in the network's representation.
+      By analyzing the activations of the defender during the game, we can gain insight into how it processes different observations.
+      
+      To visualize the activations of the defender in a 2D space, we used the t-Distributed Stochastic Neighbor Embedding (T-SNE)<dt-cite key="vandermaaten2008visualizing"></dt-cite> algorithm, which is a dimensionality reduction technique that preserves the local structure of the data.
+      This allows us to gain a better understanding of how the defender perceives the game environment and how it responds to different stimuli.
+    </p>
+   
+    <figure id="tsne" class="l-page side">
+      <img class="figure-content" src="static/tsne.png" style="width: 100%;">
+      <figcaption class="caption-centered">
+        <b>TSNE</b> visualization of the activations of the defender's policy network during the game.
+      </figcaption>
+    </figure>
+
+    <p>
+      The T-SNE visualization shows that the attacker is able to create observations that stimulate the defender differently than the Zoo models. 
+      As this is a strictly qualitative analysis, we cannot draw any numeric conclusions from this visualization.
+
+      Therefore we also performed a statistical analysis of the defender's activations.
+      This analysis is done by modeling the defender's activations when playing against the one of the Zoo models as a Gaussian mixture model<dt-cite key="pedregosa2011gaussian"></dt-cite>.
+      
+      When comparing the activations induced by the other Zoo models we can observer that there is a weak positive log likelihood, that these activations where produced by the same model.
+      However in most of the cases it was strongly unlikely, that the activations induced by the adversarial agent were produced by the same model.
+   </p>
+  <h2 id="Discussion">Discussion</h2>
+  <p>
+    In the high dimensional environments (sumo humans, kick and defend, you shall not pass) our experiments showed that adversarial policies can prove as strong opponents in only a fraction of the training time.
+    Despite the success on these environment, in the low dimensional environment (sumo ants) the adversarial agent could not prove successfull very often.
+    This makes sense, since the combinatorical explosion of possible states in the higher dimensional environments makes it more likely, that there are observation states which were not visited in the training process and not generalized yet.
+
+    
   </p>
 
   <h2 id="appendix">Appendix</h2>
-
 </dt-article>
 
 <dt-appendix>
