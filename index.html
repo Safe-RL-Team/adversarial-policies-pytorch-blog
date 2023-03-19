@@ -501,7 +501,8 @@
     In the paper <dt-cite key="gleave2020adversarial"></dt-cite> an effective measure for protecting against the
     adversarial attacks was found in masking out the position of the pretrained Zoo-models. In our studies we could not
     replicate these results. We attribute this to a detail in the implementation of the masking. In <dt-cite
-      key="gleave2020adversarial" /> the authors did not set the masked values to a fixed value and kept it static
+      key="gleave2020adversarial"></dt-cite> the authors did not set the masked values to a fixed value and kept it
+    static
     throughout a run, but instead updated the relative position with respect to the movement of the agent. Since this is
     an inplausible setup for a black box environment we kept a static value throughout the run. With this change, we
     were not able to see the same results as in the paper, but had to notice a significant drop in performance against
