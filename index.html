@@ -1,6 +1,8 @@
 <!doctype html>
 <meta charset="utf-8">
 <script src="https://distill.pub/template.v1.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+  integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 
 <style>
   .figure .caption {
@@ -8,37 +10,46 @@
     line-height: 18px;
     margin: 0;
   }
+
   .figure .caption-centered {
     font-size: 16px;
     line-height: 18px;
     margin: 0;
     text-align: center;
   }
+
   .figure .figure-content {
     width: 100%;
   }
+
   .columns {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
   }
+
   .columns .column-2 {
     width: 50%;
     padding: 10px;
   }
+
   .columns .column-4 {
     width: 25%;
     padding: 10px;
   }
+
   .mujoco-red {
     color: #804040;
   }
+
   .mujoco-blue {
     color: #4080a4;
   }
+
   table {
     table-layout: fixed;
   }
+
   table td {
     text-align: center;
   }
@@ -49,8 +60,10 @@
   description: "Description of the post"
   authors:
   - Jarek Liesen
+  - Lorenz Hufe
   affiliations:
   - BCCN Berlin: https://www.bccn-berlin.de
+  - TU Berlin: https://www.tu.berlin
 </script>
 
 <dt-article>
@@ -59,9 +72,11 @@
   <dt-byline></dt-byline>
   <!-- Introduction -->
   <p>
-    Adversarial attacks are a well-known phenomenon in machine learning that poses a threat to the security of many practical applications.
+    Adversarial attacks are a well-known phenomenon in machine learning that poses a threat to the security of many
+    practical applications.
     To attack a neural network, one adds a small pertubation to its input, which leads to a misclassification.
-    They have been studied extensively in the context of computer vision, and more recently in reinforcement learning (RL).
+    They have been studied extensively in the context of computer vision, and more recently in reinforcement learning
+    (RL).
   </p>
   <div class="l-page side">
     <div class="columns">
@@ -71,36 +86,48 @@
       </div>
       <div class="column-2 figure">
         <img class="figure-content" src="static/hopper_pa.gif">
-        <p class="caption">The same Hopper agent under adversarial attack from <dt-cite key="sun2022who"></dt-cite><br><b>Reward</b>: 171</p>
+        <p class="caption">The same Hopper agent under adversarial attack from <dt-cite
+            key="sun2022who"></dt-cite><br><b>Reward</b>: 171</p>
       </div>
     </div>
   </div>
   <p>
-    In an RL setting, perturbed observations can fool an agent with a neural network policy into taking actions that lead to poor performance
+    In an RL setting, perturbed observations can fool an agent with a neural network policy into taking actions that
+    lead to poor performance
     <dt-cite key="huang2017adversarial"></dt-cite><dt-cite key="chen2019adversarial"></dt-cite>.
-    For example, look at the hopper on the right, where the observations have been unnoticeably perturbed, leading to a detrimental drop in the cumulative reward.
-    There is a multitude of methods to attack RL agents, including classical methods such as FGSM <dt-cite key="goodfellow2014explaining"></dt-cite>,
-    and methods that exploit RL specific properties <dt-cite key="kos2017delving"></dt-cite><dt-cite key="sun2021who"></dt-cite>.
-    The majority of these methods assume that the attacker is able to freely modify the agent's observations, which might not be possible in many cases.
+    For example, look at the hopper on the right, where the observations have been unnoticeably perturbed, leading to a
+    detrimental drop in the cumulative reward.
+    There is a multitude of methods to attack RL agents, including classical methods such as FGSM <dt-cite
+      key="goodfellow2014explaining"></dt-cite>,
+    and methods that exploit RL specific properties <dt-cite key="kos2017delving"></dt-cite><dt-cite
+      key="sun2021who"></dt-cite>.
+    The majority of these methods assume that the attacker is able to freely modify the agent's observations, which
+    might not be possible in many cases.
     However, an interesting opportunity arises in multi-agent RL (MARL) settings, where agents observe each other:
   </p>
-  <p><i>An attacker might take the form of an agent in MARL, whose actions directly influence the victim's observations.</i></p>
+  <p><i>An attacker might take the form of an agent in MARL, whose actions directly influence the victim's
+      observations.</i></p>
   <p>
-    This is the key idea in Gleave et al's paper "Adversarial Policies: Attacking Deep Reinforcement Learning" <dt-cite key="gleave2020adversarial"></dt-cite>,
+    This is the key idea in Gleave et al's paper "Adversarial Policies: Attacking Deep Reinforcement Learning" <dt-cite
+      key="gleave2020adversarial"></dt-cite>,
     who train adversarial agents that attack victims in several two-player games.
-    In this post, we will take a closer look at those adversarial agents, analyze how they work, and discuss ways to defend against them.
+    In this post, we will take a closer look at those adversarial agents, analyze how they work, and discuss ways to
+    defend against them.
   </p>
   <h2>Setting things up</h2>
   <p>
-    We will train adversarial agents on four different mujoco environments, each of which implements a two-player, zero-sum game.
-    Originally, these environments have been introduced in Bansal et al's paper "Emergent	Complexity via Multi-Agent Competition" <dt-cite key="bansal2018emergent"></dt-cite>,
+    We will train adversarial agents on four different mujoco environments, each of which implements a two-player,
+    zero-sum game.
+    Originally, these environments have been introduced in Bansal et al's paper "Emergent Complexity via Multi-Agent
+    Competition" <dt-cite key="bansal2018emergent"></dt-cite>,
     who trained several agents competing in each environment.
     In the visualizations in the rest of the article, we will see the behavior of the first pretrained agent.
     For our experiments, we will focus on the following four:
   </p>
-  <div class="l-page-outset columns">
+
+  <div class="l-page-outset row bg-secondary bg-opacity-25 p-3">
     <!-- All videos are from the zoo agents with tag 1 -->
-    <div class="column-4 figure">
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/you-shall-not-pass-zoo-concat.mp4" type="video/mp4">
       </video>
@@ -110,7 +137,7 @@
         1 pretrained agent
       </p>
     </div>
-    <div class="column-4 figure">
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/kick-and-defend-zoo-concat.mp4" type="video/mp4">
       </video>
@@ -120,7 +147,7 @@
         3 pretrained agents
       </p>
     </div>
-    <div class="column-4 figure">
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/sumo-humans-zoo-concat.mp4" type="video/mp4">
       </video>
@@ -130,7 +157,7 @@
         3 pretrained agents
       </p>
     </div>
-    <div class="column-4 figure">
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/sumo-ants-zoo-concat.mp4" type="video/mp4">
       </video>
@@ -142,62 +169,72 @@
     </div>
   </div>
   <p>
-    The score you see above has the form <i>#wins - #losses - #draws</i>, from the perspective of one of the agents, which we will call the attacker.
-    Right now, the attacker acts according to its pretrained policy, but later we will train an adversarial policy to act in its place.
-    <ul>
-      <li>In <b>You Shall Not Pass</b> the attacker is the red agent, who wins if the blue agent falls to the ground before it reaches the red line, and loses otherwise.</li>
-      <li>
-        In <b>Kick and Defend</b> the attacker is the blue agent, who wins if the red agent fails to score, but the ball remains within the vicinity of the goal.
-        The blue agent loses if a goal is scored, otherwise it is a draw.
-      </li>
-      <li>In <b>Sumo</b> the attacker is the blue agent. If the agents had contact, and one of the falls to the ground or outside the arena, that agent loses. A draw is declared on timeout or premature stumbling.</li>
-    </ul>
+    The score you see above has the form <i>#wins - #losses - #draws</i>, from the perspective of one of the agents,
+    which we will call the attacker.
+    Right now, the attacker acts according to its pretrained policy, but later we will train an adversarial policy to
+    act in its place.
+  <ul>
+    <li>In <b>You Shall Not Pass</b> the attacker is the red agent, who wins if the blue agent falls to the ground
+      before it reaches the red line, and loses otherwise.</li>
+    <li>
+      In <b>Kick and Defend</b> the attacker is the blue agent, who wins if the red agent fails to score, but the ball
+      remains within the vicinity of the goal.
+      The blue agent loses if a goal is scored, otherwise it is a draw.
+    </li>
+    <li>In <b>Sumo</b> the attacker is the blue agent. If the agents had contact, and one of the falls to the ground or
+      outside the arena, that agent loses. A draw is declared on timeout or premature stumbling.</li>
+  </ul>
   </p>
 
   <h2>Training an adversarial agent</h2>
   <p>
     While training the attacker, we keep the victim's policy fixed.
-    This is not an unrealistic assumption, as in practice neural networks are often frozen before deployment, in order to avoid performance degradation due to retraining.
-    Additionally, this simplifies our training setup, because our victim can be "absorbed" into the environment, by incorporating the victim's policy into the transition function.
+    This is not an unrealistic assumption, as in practice neural networks are often frozen before deployment, in order
+    to avoid performance degradation due to retraining.
+    Additionally, this simplifies our training setup, because our victim can be "absorbed" into the environment, by
+    incorporating the victim's policy into the transition function.
     In pseudocode, this could look something like this:
   </p>
   <dt-code block language="python">
     class AttackerEnv(gym.Env):
-        """ An environment that wraps a multi-agent environment and inserts 
-            the victim's actions at index 1. """
+    """ An environment that wraps a multi-agent environment and inserts
+    the victim's actions at index 1. """
 
-        ...
-        
-        def step(self, action):
-            # Get the action the victim would take in the current state
-            victim_action = self.victim_policy(self._get_obs())
+    ...
 
-            # Give the attacker's action as well as the victim's action
-            # to the wrapped multi-agent environment
-            obs, reward, done, info = self.env.step([action, victim_action])
+    def step(self, action):
+    # Get the action the victim would take in the current state
+    victim_action = self.victim_policy(self._get_obs())
 
-            # Return the observation and reward of the attacker
-            return obs[0], reward[0], done, info
+    # Give the attacker's action as well as the victim's action
+    # to the wrapped multi-agent environment
+    obs, reward, done, info = self.env.step([action, victim_action])
+
+    # Return the observation and reward of the attacker
+    return obs[0], reward[0], done, info
   </dt-code>
   <p>
-    Note that the environment now takes in only an action from the attacker, and returns only the attacker's observation and reward, meaning...
+    Note that the environment now takes in only an action from the attacker, and returns only the attacker's observation
+    and reward, meaning...
   </p>
   <p><i>The attacker can be trained in a single-agent environment.</i></p>
   <p>
     Our goal for the attacker is simply to win as much as possible.
-    Therefore, we don't use the reward function of the environment, but reward the attacker when it wins, and penalize it otherwise.
+    Therefore, we don't use the reward function of the environment, but reward the attacker when it wins, and penalize
+    it otherwise.
     We do this by giving a sparse reward at the end of the episode, either 1000 or -1000 depending on the game result.
   </p>
   <p>
     With the environment and reward in place, we can use any standard RL algorithm to train our attacker.
-    In our case, we used the PPO implementation of stable baselines 3 <dt-cite key="stable-baselines3"></dt-cite> 
+    In our case, we used the PPO implementation of stable baselines 3 <dt-cite key="stable-baselines3"></dt-cite>
     with the hyperparameters provided in <dt-cite key="gleave2020adversarial"></dt-cite>.
   </p>
 
   <h2>Training results</h2>
-  <div class="l-page-outset columns">
+  <div class="l-page-outset row bg-secondary bg-opacity-25 p-3">
     <!-- All videos are from the zoo agents with tag 1 -->
-    <div class="column-4 figure">
+
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/you-shall-not-pass-adv-concat.mp4" type="video/mp4">
       </video>
@@ -206,7 +243,8 @@
         MLP policy, attacker in <span class="mujoco-red"><b>● Red</b></span>
       </p>
     </div>
-    <div class="column-4 figure">
+
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/kick-and-defend-adv-concat.mp4" type="video/mp4">
       </video>
@@ -215,7 +253,8 @@
         LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
       </p>
     </div>
-    <div class="column-4 figure">
+
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/sumo-humans-adv-concat.mp4" type="video/mp4">
       </video>
@@ -224,7 +263,8 @@
         LSTM policy, attacker in <span class="mujoco-blue"><b>● Blue</b></span>
       </p>
     </div>
-    <div class="column-4 figure">
+
+    <div class="col-6 col-md-3 figure">
       <video class="figure-content" autoplay loop controls>
         <source src="static/sumo-ants-adv-concat.mp4" type="video/mp4">
       </video>
@@ -251,9 +291,12 @@
   </div>
   <p>
     In <b>You shall not pass</b>, the attacker is able to consistently score wins (it wins 71% of the games).
-    It does this not by obstructing the victim, or by any other interpretable means, but by falling to the ground and moving seemingly at random.
-    This shows that the attacker produces adversarial observations, because the victim cannot cross the line despite any obstruction.
-    This is not the case when placing the victim against a random policy, or one that does not exert forces on its joints at all (the zero policy).
+    It does this not by obstructing the victim, or by any other interpretable means, but by falling to the ground and
+    moving seemingly at random.
+    This shows that the attacker produces adversarial observations, because the victim cannot cross the line despite any
+    obstruction.
+    This is not the case when placing the victim against a random policy, or one that does not exert forces on its
+    joints at all (the zero policy).
   </p>
 
   <div class="l-body side">
@@ -269,8 +312,10 @@
   </div>
   <p>
     In <b>Kick and Defend</b>, the attacker achieves even better results against the victim (winning 81% of the games).
-    While the behavior of the attacker seems similar to the one in You Shall Not Pass, the effect it has on the victim is different.
-    Instead of falling over, the victim seems to forget to kick the ball, resulting in a loss after the time limit is reached.
+    While the behavior of the attacker seems similar to the one in You Shall Not Pass, the effect it has on the victim
+    is different.
+    Instead of falling over, the victim seems to forget to kick the ball, resulting in a loss after the time limit is
+    reached.
     Again, pairing up the victim against the random policy or the zero policy, it performs as expected.
   </p>
 
@@ -289,7 +334,8 @@
     In <b>Sumo</b>, our attacks work fairly well, but the results differ a lot between the victims.
     While our first attacker can score a 70% winrate, the second and third only win 12% and 36%, respectively.
     Because the attacker cannot win when falling over, it learns to kneel in a stable position, while moving its arms.
-    The constraint of staying upright limits the impact the attacker can have on the victim, which could explain the high variance in the attackers performance.
+    The constraint of staying upright limits the impact the attacker can have on the victim, which could explain the
+    high variance in the attackers performance.
   </p>
 
   <div class="l-body side">
@@ -305,7 +351,8 @@
   </div>
   <p>
     In <b>Sumo (ants)</b> our attack did not work against any of the victims.
-    This is in line with the research on adversarial attacks, which shows that they work better in higher-dimensional input spaces <dt-cite key="goodfellow2014explaining"></dt-cite>.
+    This is in line with the research on adversarial attacks, which shows that they work better in higher-dimensional
+    input spaces <dt-cite key="goodfellow2014explaining"></dt-cite>.
     In comparison, the state of an ant agent is 15-dimensional, while that of a human is 24-dimensional.
     Still, we can observe that the attacker seems to stall the victim, while almost not moving itself.
     This is a vastly differnt behavior than that of the pretrained agents.
@@ -325,8 +372,10 @@
     </li>
   </ul>
   <p>
-    While the results we presented here are purely qualitative and visual, we provide a complete table of winrates in the <a href="#appendix">appendix</a>.
-    Still, you might be unsatisfied, because while we have seen that the attacks work, we have not seen <i>how</i> they work.
+    While the results we presented here are purely qualitative and visual, we provide a complete table of winrates in
+    the <a href="#appendix">appendix</a>.
+    Still, you might be unsatisfied, because while we have seen that the attacks work, we have not seen <i>how</i> they
+    work.
   </p>
 
 
@@ -350,17 +399,25 @@
     -->
 
   <p>
-    We suspect that the easiest way to win against a well-trained agent in a short time is to create observations that the defender has not encountered during training.
-    The attack aims to create inputs for the defender in an observation space that the defender has not well generalized before.
-    To validate if this assumption is correct we are required to open up the black box of the defender and analyze its inner workings.
-    
-    One intuitive approach to achieve this is to examine the activations of semantically similar observations, which are expected to be close to each other in the network's representation.
-    By analyzing the activations of the defender during the game, we can gain insight into how it processes different observations.
-    
-    To visualize the activations of the defender in a 2D space, we used the t-Distributed Stochastic Neighbor Embedding (T-SNE)<dt-cite key="vandermaaten2008visualizing"></dt-cite> algorithm, which is a dimensionality reduction technique that preserves the local structure of the data.
-    This allows us to gain a better understanding of how the defender perceives the game environment and how it responds to different stimuli.
+    We suspect that the easiest way to win against a well-trained agent in a short time is to create observations that
+    the defender has not encountered during training.
+    The attack aims to create inputs for the defender in an observation space that the defender has not well generalized
+    before.
+    To validate if this assumption is correct we are required to open up the black box of the defender and analyze its
+    inner workings.
+
+    One intuitive approach to achieve this is to examine the activations of semantically similar observations, which are
+    expected to be close to each other in the network's representation.
+    By analyzing the activations of the defender during the game, we can gain insight into how it processes different
+    observations.
+
+    To visualize the activations of the defender in a 2D space, we used the t-Distributed Stochastic Neighbor Embedding
+    (T-SNE)<dt-cite key="vandermaaten2008visualizing"></dt-cite> algorithm, which is a dimensionality reduction
+    technique that preserves the local structure of the data.
+    This allows us to gain a better understanding of how the defender perceives the game environment and how it responds
+    to different stimuli.
   </p>
-  
+
   <figure id="tsne" class="l-page side">
     <img class="figure-content" src="static/tsne.png" style="width: 100%;">
     <figcaption class="caption-centered">
@@ -369,14 +426,18 @@
   </figure>
 
   <p>
-    The T-SNE visualization shows that the attacker is able to create observations that stimulate the defender differently than the Zoo models. 
+    The T-SNE visualization shows that the attacker is able to create observations that stimulate the defender
+    differently than the Zoo models.
     As this is a strictly qualitative analysis, we cannot draw any numeric conclusions from this visualization.
 
     Therefore we also performed a statistical analysis of the defender's activations.
-    This analysis is done by modeling the defender's activations when playing against the one of the Zoo models as a Gaussian mixture model<dt-cite key="pedregosa2011gaussian"></dt-cite>.
-    
-    When comparing the activations induced by the other Zoo models we can observer that there is a weak positive log likelihood, that these activations where produced by the same model.
-    However in most of the cases it was strongly unlikely, that the activations induced by the adversarial agent were produced by the same model.
+    This analysis is done by modeling the defender's activations when playing against the one of the Zoo models as a
+    Gaussian mixture model<dt-cite key="pedregosa2011gaussian"></dt-cite>.
+
+    When comparing the activations induced by the other Zoo models we can observer that there is a weak positive log
+    likelihood, that these activations where produced by the same model.
+    However in most of the cases it was strongly unlikely, that the activations induced by the adversarial agent were
+    produced by the same model.
   </p>
 
   <h2>
@@ -386,39 +447,69 @@
     As we have seen, the enabler for adversarial attacks is the manipulation of the victim's observation space.
     Therefore, how can we defend against such attacks?
     A super simple solution is to mask out the part of the observations that contains information about the attacker.
-    For masking, we fix the values after initializing the agents within the environment so that they stay natural, unlike setting them to 0.
+    For masking, we fix the values after initializing the agents within the environment so that they stay natural,
+    unlike setting them to 0.
   </p>
   <p>
-    This technique works extremely well for "You Shall Not Pass," where the win rate against the adversary skyrockets to 99.2%.
+    This technique works extremely well for "You Shall Not Pass," where the win rate against the adversary skyrockets to
+    99.2%.
     However, it does come at a cost: the performance against the pretrained opponent drops from 50.9% to 19.3%.
-    Additionally, this method of masking does not work for other environments whose observations contain positions relative to the victim.
-    When the victim moves, it still observes the same relative position, which we believe is detrimental to its performance.
+    Additionally, this method of masking does not work for other environments whose observations contain positions
+    relative to the victim.
+    When the victim moves, it still observes the same relative position, which we believe is detrimental to its
+    performance.
     Besides this very simple method, there are many other ways to defend against adversarial agents.
   </p>
   <p>
-    One idea is <b>finetuning</b> a policy against adversarial attacks, such as in <dt-cite key="kos2017delving"></dt-cite>, 
+    One idea is <b>finetuning</b> a policy against adversarial attacks, such as in <dt-cite
+      key="kos2017delving"></dt-cite>,
     where the authors increase a policies robustness by finetuning against observations attacked with FGSM.
-    Similarly, in <td-cite key="gleave2020adversarial"></td-cite>, the victim agents are finetuned against the attackers,
+    Similarly, in <td-cite key="gleave2020adversarial"></td-cite>, the victim agents are finetuned against the
+    attackers,
     which increases robustness while the attack can still be reapplied.
   </p>
   <p>
     A related approach is <b>co-training</b> with adversarial agents.
-    Here, the victim is trained at the same time as an adversary which can manipulate the victim's observations, building robustness from the ground up.
-    In <dt-cite key="pinto2017robust"></dt-cite>, the co-trained adversarial agent applies forces to the victim in order to destabelize it.
-    In <dt-cite key="zhang2021robust"></dt-cite>, the authors co-train an optimal adversary represented by a neural network that outputs an observation.
-    This might be infeasible in large observation spaces, and is improved upon in <dt-cite key="sun2022who"></dt-cite>, who split this network into an actor and director,
+    Here, the victim is trained at the same time as an adversary which can manipulate the victim's observations,
+    building robustness from the ground up.
+    In <dt-cite key="pinto2017robust"></dt-cite>, the co-trained adversarial agent applies forces to the victim in order
+    to destabelize it.
+    In <dt-cite key="zhang2021robust"></dt-cite>, the authors co-train an optimal adversary represented by a neural
+    network that outputs an observation.
+    This might be infeasible in large observation spaces, and is improved upon in <dt-cite key="sun2022who"></dt-cite>,
+    who split this network into an actor and director,
     which craft a state perturbation and propose a policy perturbation direction, respectively.
-    Another approach is to co-train with adversarial agents, which is done in <dt-cite key="czempin2022reducing"></dt-cite>, where the authors train a victim with a diverse population of different opponents.
+    Another approach is to co-train with adversarial agents, which is done in <dt-cite
+      key="czempin2022reducing"></dt-cite>, where the authors train a victim with a diverse population of different
+    opponents.
   </p>
   <p>
-    Lastly, there are several <b>regularization</b> methods, such as <dt-cite key="oikarinen2021robust"></dt-cite> and <dt-cite key="zhang2020robust"></dt-cite>.
+    Lastly, there are several <b>regularization</b> methods, such as <dt-cite key="oikarinen2021robust"></dt-cite> and
+    <dt-cite key="zhang2020robust"></dt-cite>.
   </p>
 
   <h2 id="Discussion">Discussion</h2>
   <p>
-    In the high dimensional environments (sumo humans, kick and defend, you shall not pass) our experiments showed that adversarial policies can prove as strong opponents in only a fraction of the training time.
-    Despite the success on these environment, in the low dimensional environment (sumo ants) the adversarial agent could not prove successfull very often.
-    This makes sense, since the combinatorical explosion of possible states in the higher dimensional environments makes it more likely, that there are observation states which were not visited in the training process and not generalized yet.
+    In the high dimensional environments (sumo humans, kick and defend, you shall not pass) our experiments showed that
+    adversarial policies can prove as strong opponents in only a fraction of the training time.
+    Despite the success on these environment, in the low dimensional environment (sumo ants) the adversarial agent could
+    not prove successfull very often.
+    This makes sense, since the combinatorical explosion of possible states in the higher dimensional environments makes
+    it more likely, that there are observation states which were not visited in the training process and not generalized
+    yet.
+
+    In the paper <dt-cite key="gleave2020adversarial"></dt-cite> an effective measure for protecting against the
+    adversarial attacks was found in masking out the position of the pretrained Zoo-models. In our studies we could not
+    replicate these results. We attribute this to a detail in the implementation of the masking. In <dt-cite
+      key="gleave2020adversarial" /> the authors did not set the masked values to a fixed value and kept it static
+    throughout a run, but instead updated the relative position with respect to the movement of the agent. Since this is
+    an inplausible setup for a black box environment we kept a static value throughout the run. With this change, we
+    were not able to see the same results as in the paper, but had to notice a significant drop in performance against
+    all the other models, with a winrate of less then 4% against every model.
+
+    <!--
+      * confusing: why does zooV1 lose
+    -->
   </p>
 
 
@@ -499,7 +590,9 @@
       <td>65.0</td>
       <td>63.8</td>
     </tr>
-    <tr><td colspan="9"></td></tr>
+    <tr>
+      <td colspan="9"></td>
+    </tr>
     <!-- {"zero": {"win": 0, "loss": 905, "draw": 95}, "random": {"win": 0, "loss": 951, "draw": 49}, "zoo1": {"win": 35, "loss": 929, "draw": 36}, "zoo2": {"win": 8, "loss": 979, "draw": 13}, "zoo3": {"win": 0, "loss": 930, "draw": 70}, "adv1": {"win": 1, "loss": 983, "draw": 16}, "adv2": {"win": 33, "loss": 958, "draw": 9}, "adv3": {"win": 2, "loss": 992, "draw": 6}} -->
     <tr>
       <th>ZooM1</th>
