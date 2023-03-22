@@ -398,6 +398,13 @@
     * TSNE is a dimensionality reduction algorithm that tries to preserve the local structure of the data
     -->
 
+  <figure id="tsne" class="l-page side">
+    <img class="figure-content" src="static/tsne.png" style="width: 100%;">
+    <figcaption class="caption-centered">
+      <b>TSNE</b> visualization of the activations of the defender's policy network during the game.
+    </figcaption>
+  </figure>
+
   <p>
     We suspect that the easiest way to win against a well-trained agent in a short time is to create observations that
     the defender has not encountered during training.
@@ -418,10 +425,11 @@
     to different stimuli.
   </p>
 
-  <figure id="tsne" class="l-page side">
-    <img class="figure-content" src="static/tsne.png" style="width: 100%;">
+  <figure id="gmm" class="l-page side">
+    <img class="figure-content" src="static/gmm.png" style="width: 100%;">
     <figcaption class="caption-centered">
-      <b>TSNE</b> visualization of the activations of the defender's policy network during the game.
+      <b>Log-likelihood</b> of a models activation to originate from the Gaussian mixture model fitted onto Zoo1's
+      activation.
     </figcaption>
   </figure>
 
@@ -429,7 +437,8 @@
     The T-SNE visualization shows that the attacker is able to create observations that stimulate the defender
     differently than the Zoo models.
     As this is a strictly qualitative analysis, we cannot draw any numeric conclusions from this visualization.
-
+  </p>
+  <p>
     Therefore we also performed a statistical analysis of the defender's activations.
     This analysis is done by modeling the defender's activations when playing against the one of the Zoo models as a
     Gaussian mixture model<dt-cite key="pedregosa2011gaussian"></dt-cite>.
@@ -516,8 +525,11 @@
 
   <h2 id="appendix">Appendix</h2>
   <h3>Tournament</h3>
+
+
   <h4>You Shall Not Pass</h4>
-  <table>
+
+  <table style="margin-bottom: 100px;">
     <tr>
       <th></th>
       <th>Adv1</th>
@@ -525,25 +537,28 @@
       <th>Random</th>
       <th>Zero</th>
     </tr>
-    <!--{"zero": {"win": 987, "loss": 13, "draw": 0}, "random": {"win": 980, "loss": 20, "draw": 0}, "zoo1": {"win": 509, "loss": 491, "draw": 0}, "adv1": {"win": 384, "loss": 616, "draw": 0}}-->
+    <!--{{"zero": {"win": 988, "loss": 12, "draw": 0}, "random": {"win": 984, "loss": 16, "draw": 0}, "zoo1": {"win": 489, "loss": 511, "draw": 0}, "adv1": {"win": 301, "loss": 699, "draw": 0}}-->
     <tr>
       <th>ZooV1</th>
-      <td>38.4</td>
-      <td>50.9</td>
-      <td>98.0</td>
-      <td>98.7</td>
+      <td>30.1</td>
+      <td>48.9</td>
+      <td>98.4</td>
+      <td>98.8</td>
     </tr>
-    <!-- {"zero": {"win": 983, "loss": 17, "draw": 0}, "random": {"win": 982, "loss": 18, "draw": 0}, "zoo1": {"win": 193, "loss": 807, "draw": 0}, "adv1": {"win": 992, "loss": 8, "draw": 0}} -->
+    <!-- {"zero": {"win": 988, "loss": 12, "draw": 0}, "random": {"win": 988, "loss": 12, "draw": 0}, "zoo1": {"win": 251, "loss": 749, "draw": 0}, "adv1": {"win": 994, "loss": 6, "draw": 0}}-->
     <tr>
       <th>ZooM1</th>
-      <td>99.2</td>
-      <td>19.3</td>
-      <td>98.2</td>
-      <td>98.3</td>
+      <td>99.4</td>
+      <td>25.1</td>
+      <td>98.8</td>
+      <td>98.8</td>
     </tr>
   </table>
+
+
   <h4>Kick and Defend</h4>
-  <table>
+
+  <table style="margin-bottom: 100px;">
     <tr>
       <th></th>
       <th>Adv1</th>
@@ -555,82 +570,281 @@
       <th>Random</th>
       <th>Zero</th>
     </tr>
-    <!-- {"zero": {"win": 597, "loss": 314, "draw": 89}, "random": {"win": 667, "loss": 295, "draw": 38}, "zoo1": {"win": 550, "loss": 443, "draw": 7}, "zoo2": {"win": 579, "loss": 418, "draw": 3}, "zoo3": {"win": 573, "loss": 422, "draw": 5}, "adv1": {"win": 400, "loss": 592, "draw": 8}, "adv2": {"win": 386, "loss": 607, "draw": 7}, "adv3": {"win": 414, "loss": 572, "draw": 14}} -->
     <tr>
       <th>ZooV1</th>
-      <td>40.0</td>
-      <td>38.6</td>
-      <td>41.4</td>
-      <td>55.0</td>
-      <td>57.9</td>
-      <td>57.3</td>
-      <td>66.7</td>
-      <td>59.7</td>
+      <td>38.4</td>
+      <td>35.7</td>
+      <td>38.4</td>
+      <td>58.1</td>
+      <td>57.7</td>
+      <td>57.7</td>
+      <td>62.0</td>
+      <td>60.4</td>
     </tr>
-    <!-- {"zero": {"win": 412, "loss": 484, "draw": 104}, "random": {"win": 439, "loss": 509, "draw": 52}, "zoo1": {"win": 339, "loss": 659, "draw": 2}, "zoo2": {"win": 358, "loss": 636, "draw": 6}, "zoo3": {"win": 344, "loss": 653, "draw": 3}, "adv1": {"win": 297, "loss": 692, "draw": 11}, "adv2": {"win": 319, "loss": 661, "draw": 20}, "adv3": {"win": 309, "loss": 679, "draw": 12}} -->
     <tr>
       <th>ZooV2</th>
-      <td>29.7</td>
-      <td>31.9</td>
-      <td>30.9</td>
-      <td>33.9</td>
-      <td>35.8</td>
-      <td>34.4</td>
-      <td>43.9</td>
-      <td>41.2</td>
+      <td>31.7</td>
+      <td>33.0</td>
+      <td>32.2</td>
+      <td>33.3</td>
+      <td>33.4</td>
+      <td>35.4</td>
+      <td>45.3</td>
+      <td>41.4</td>
     </tr>
-    <!-- {"zero": {"win": 638, "loss": 287, "draw": 75}, "random": {"win": 650, "loss": 282, "draw": 68}, "zoo1": {"win": 396, "loss": 585, "draw": 19}, "zoo2": {"win": 368, "loss": 619, "draw": 13}, "zoo3": {"win": 367, "loss": 616, "draw": 17}, "adv1": {"win": 168, "loss": 824, "draw": 8}, "adv2": {"win": 175, "loss": 816, "draw": 9}, "adv3": {"win": 206, "loss": 780, "draw": 14}} -->
     <tr>
       <th>ZooV3</th>
+      <td>17.9</td>
       <td>16.8</td>
-      <td>17.5</td>
-      <td>16.7</td>
-      <td>36.8</td>
-      <td>36.7</td>
-      <td>36.6</td>
-      <td>65.0</td>
-      <td>63.8</td>
+      <td>17.8</td>
+      <td>38.8</td>
+      <td>37.6</td>
+      <td>39.0</td>
+      <td>68.4</td>
+      <td>60.8</td>
     </tr>
-    <tr>
-      <td colspan="9"></td>
-    </tr>
-    <!-- {"zero": {"win": 0, "loss": 905, "draw": 95}, "random": {"win": 0, "loss": 951, "draw": 49}, "zoo1": {"win": 35, "loss": 929, "draw": 36}, "zoo2": {"win": 8, "loss": 979, "draw": 13}, "zoo3": {"win": 0, "loss": 930, "draw": 70}, "adv1": {"win": 1, "loss": 983, "draw": 16}, "adv2": {"win": 33, "loss": 958, "draw": 9}, "adv3": {"win": 2, "loss": 992, "draw": 6}} -->
     <tr>
       <th>ZooM1</th>
-      <td>0.1</td>
-      <td>3.3</td>
-      <td>0.2</td>
-      <td>3.5</td>
-      <td>0.8</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>37.5</td>
+      <td>4.6</td>
+      <td>0.4</td>
+      <td>4.2</td>
+      <td>0.5</td>
+      <td>2.0</td>
+      <td>40.7</td>
+      <td> 0.5</td>
     </tr>
-    <!-- {"zero": {"win": 0, "loss": 904, "draw": 96}, "random": {"win": 16, "loss": 928, "draw": 56}, "zoo1": {"win": 31, "loss": 951, "draw": 18}, "zoo2": {"win": 0, "loss": 909, "draw": 91}, "zoo3": {"win": 14, "loss": 980, "draw": 6}, "adv1": {"win": 8, "loss": 982, "draw": 10}, "adv2": {"win": 0, "loss": 978, "draw": 22}, "adv3": {"win": 2, "loss": 988, "draw": 10}} -->
     <tr>
       <th>ZooM2</th>
-      <td>0.8</td>
-      <td>0.0</td>
-      <td>0.2</td>
-      <td>3.1</td>
-      <td>0.0</td>
-      <td>1.4</td>
-      <td>1.6</td>
-      <td>0.0</td>
+      <td>19.7</td>
+      <td>2.3</td>
+      <td>0.1</td>
+      <td>0.6</td>
+      <td>27.5</td>
+      <td>2.0</td>
+      <td>12.9</td>
+      <td> 0.7</td>
     </tr>
-    <!-- {"zero": {"win": 3, "loss": 917, "draw": 80}, "random": {"win": 12, "loss": 934, "draw": 54}, "zoo1": {"win": 0, "loss": 877, "draw": 123}, "zoo2": {"win": 1, "loss": 944, "draw": 55}, "zoo3": {"win": 0, "loss": 928, "draw": 72}, "adv1": {"win": 1, "loss": 989, "draw": 10}, "adv2": {"win": 28, "loss": 964, "draw": 8}, "adv3": {"win": 0, "loss": 986, "draw": 14}} -->
     <tr>
       <th>ZooM3</th>
-      <td>0.1</td>
-      <td>2.8</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.1</td>
-      <td>0.0</td>
-      <td>1.2</td>
-      <td>0.3</td>
+      <td>43.4</td>
+      <td>58.8</td>
+      <td>0.4</td>
+      <td>41.2</td>
+      <td>19.5</td>
+      <td>32.5</td>
+      <td>18.2</td>
+      <td> 1.0</td>
     </tr>
   </table>
+
+
+  <h4>Sumo Ants</h4>
+
+  <table style="margin-bottom: 100px;">
+    <tr>
+      <th></th>
+      <th>Adv1</th>
+      <th>Adv2</th>
+      <th>Adv3</th>
+      <th>Adv4</th>
+      <th>ZooO1</th>
+      <th>ZooO2</th>
+      <th>ZooO3</th>
+      <th>ZooO4</th>
+      <th>Random</th>
+      <th>Zero</th>
+    </tr>
+    <tr>
+      <th>ZooV1</th>
+      <td>60.2</td>
+      <td>60.6</td>
+      <td>65.0</td>
+      <td>68.2</td>
+      <td>39.4</td>
+      <td>38.6</td>
+      <td>38.8</td>
+      <td>36.1</td>
+      <td>66.0</td>
+      <td>68.1</td>
+    </tr>
+    <tr>
+      <th>ZooV2</th>
+      <td>61.7</td>
+      <td>61.8</td>
+      <td>59.9</td>
+      <td>62.6</td>
+      <td>35.7</td>
+      <td>33.7</td>
+      <td>35.4</td>
+      <td>38.0</td>
+      <td>65.2</td>
+      <td>59.5</td>
+    </tr>
+    <tr>
+      <th>ZooV3</th>
+      <td>69.8</td>
+      <td>64.1</td>
+      <td>65.6</td>
+      <td>64.5</td>
+      <td>37.7</td>
+      <td>35.8</td>
+      <td>36.8</td>
+      <td>38.8</td>
+      <td>65.2</td>
+      <td>68.2</td>
+    </tr>
+    <tr>
+      <th>ZooV4</th>
+      <td>68.1</td>
+      <td>71.2</td>
+      <td>69.1</td>
+      <td>69.2</td>
+      <td>44.3</td>
+      <td>43.4</td>
+      <td>41.1</td>
+      <td>40.5</td>
+      <td>77.2</td>
+      <td>71.1</td>
+    </tr>
+    <tr>
+      <th>ZooM1</th>
+      <td>33.2</td>
+      <td>36.5</td>
+      <td>35.2</td>
+      <td>30.5</td>
+      <td>8.8</td>
+      <td>15.1</td>
+      <td>19.4</td>
+      <td>18.9</td>
+      <td>44.1</td>
+      <td>43.0</td>
+    </tr>
+    <tr>
+      <th>ZooM2</th>
+      <td>15.5</td>
+      <td>26.7</td>
+      <td>20.0</td>
+      <td>25.1</td>
+      <td>15.5</td>
+      <td>13.9</td>
+      <td>15.7</td>
+      <td>14.0</td>
+      <td>27.7</td>
+      <td>25.7</td>
+    </tr>
+    <tr>
+      <th>ZooM3</th>
+      <td>27.5</td>
+      <td>22.5</td>
+      <td>29.6</td>
+      <td>24.0</td>
+      <td>16.8</td>
+      <td>14.5</td>
+      <td>14.1</td>
+      <td>12.3</td>
+      <td>30.3</td>
+      <td>20.2</td>
+    </tr>
+    <tr>
+      <th>ZooM4</th>
+      <td>14.4</td>
+      <td>17.0</td>
+      <td>15.3</td>
+      <td>28.4</td>
+      <td>11.2</td>
+      <td>9.5</td>
+      <td>16.4</td>
+      <td>9.6</td>
+      <td>26.3</td>
+      <td>13.9</td>
+    </tr>
+  </table>
+
+
+
+  <h4>Sumo Huamns</h4>
+
+  <table style="margin-bottom: 100px;">
+    <tr>
+      <th></th>
+      <th>Adv1</th>
+      <th>Adv2</th>
+      <th>Adv3</th>
+      <th>ZooO1</th>
+      <th>ZooO2</th>
+      <th>ZooO3</th>
+      <th>Random</th>
+      <th>Zero</th>
+    </tr>
+    <tr>
+      <th>ZooV1</th>
+      <td>37.4</td>
+      <td>39.7</td>
+      <td>40.2</td>
+      <td>14.5</td>
+      <td>14.9</td>
+      <td>17.0</td>
+      <td>7.4</td>
+      <td>11.9</td>
+    </tr>
+    <tr>
+      <th>ZooV2</th>
+      <td>61.0</td>
+      <td>59.8</td>
+      <td>62.0</td>
+      <td>14.9</td>
+      <td>13.2</td>
+      <td>14.4</td>
+      <td>10.6</td>
+      <td>17.9</td>
+    </tr>
+    <tr>
+      <th>ZooV3</th>
+      <td>31.4</td>
+      <td>30.8</td>
+      <td>28.7</td>
+      <td>31.4</td>
+      <td>32.4</td>
+      <td>32.2</td>
+      <td>11.3</td>
+      <td>18.5</td>
+    </tr>
+    <tr>
+      <th>ZooM1</th>
+      <td>16.8</td>
+      <td>15.9</td>
+      <td>13.2</td>
+      <td>6.0</td>
+      <td>9.0</td>
+      <td>5.0</td>
+      <td>4.4</td>
+      <td> 9.8</td>
+    </tr>
+    <tr>
+      <th>ZooM2</th>
+      <td>9.1</td>
+      <td>9.0</td>
+      <td>9.7</td>
+      <td>11.3</td>
+      <td>10.0</td>
+      <td>17.9</td>
+      <td>11.2</td>
+      <td>11.5</td>
+    </tr>
+    <tr>
+      <th>ZooM3</th>
+      <td>13.4</td>
+      <td>2.1</td>
+      <td>17.7</td>
+      <td>4.4</td>
+      <td>12.5</td>
+      <td>6.0</td>
+      <td>12.4</td>
+      <td>17.7</td>
+    </tr>
+  </table>
+
 
 </dt-article>
 
